@@ -1,102 +1,157 @@
 java c
-CS152 
-Lab Exercise 5: Representing Elephants as Lists 
-The   purpose of this   project   is to   practice   modular   design of code with a   larger, slightly   more complex simulation than the penguin simulation.   We will   be   making use of nested lists--lists   of lists--in order to manage   more complex   data. 
-This is the first of a two-part project where   we   will be simulating the elephant   population   in Kruger National   Park, South Africa. The   carrying   capacity of the park   is approximately   7000 elephants (1 elephant   per square   mile of   park).   Previous efforts to manage the   population involved culling approximately 400 animals   per   year. After the development of an elephant contraceptive, the current effort to   manage the population   involves using a contraceptive dart   on   adult female elephants to limit   the   birth   rate.
-The elephant   population simulation will be more detailed   than   the   penguin   simulation,   because   there will be more characteristics of each animal   which   need   to   be   accounted   for.
-Lab Tasks (L1-L6) 
-L1. Setup and problem description 
-Make a folder called Project_05 where you keep your current work.   Because the   code you   write   for the lab will also be used   in   the   project we   will   dispense   with   the   lab   folder   this   week.   Create   a   new file, elephant.py, and save   it   in your Project_05 folder.   Because we will   need to   calculate some statistics   in this   project (e.g., the mean), copy   your stats.py file   into   your Project_05 folder.   Make sure to test your statistics functions to assure you that they   are working   properly.
-The design of the simulation this week will be similar to the   penguin   simulation   in   the   last project. The   main function (that serves as the conductor of your   program) will   handle   setting   parameters, calling the function that runs   the simulation, and   summarizing   the   results.   The diagram below shows the hierarchical relationship   of all   of the functions   you will   be writing. 
-
-Recall that last week we represented penguins   using   only   a variable   for the   animal’s   sex.   This   week we will represent elephants using sex, age,   and   the breeding status of each   individual animal   in order to   more accurately   model the   number of births each year and   the   effects   of   using   a contraceptive dart.Here are some of the assumptions we will make about   the   elephant   population. READ them   carefully because there are   important details that   you will   need   to   accurately   represent   your elephant   model.   Make sure that you understand the boundaries   between   categories   and the   differences for males and females, calves, adults and   seniors.
-1.       Elephants   live about   60   years.
-2.       Female elephants over age   12 and   less than   or   equal to   60   can   become   pregnant.
-3.       The gestation   period   is 22   months.
-4.       Elephants over age 60 (seniors)   have   a   survival   rate   of only   20%   per year   (it   is   unlikely,   but   not   impossible to   live   beyond 60).
-5.       For adult elephants ages 2 through   60, the   survival   rate   is very   high:   99.6%.
-6.       The survival   rate of a calf (age   ==   1),   is   85%.
-7.       The average time between births for an   adult female   is   3.1   years.   Since   the gestation   period   is 22   months, that   means that when a female   is   not already pregnant, the chance,   per month, of getting   pregnant   is   1.0 / (3.1*12   -   22),   if she   is   not on contraceptive.
-8.      A contraceptive dart ends any existing pregnancy   and   prevents   the   elephant   from   getting   pregnant for the   next 22 months.
-For this simulation, we're going to   model gestation and contraception on   a   per   month   basis. However, we'll   model survival and darting on a per   year   basis.   We   do   this   because   gestation and contraception don't follow simple yearly intervals,   but survival   rates   are   easier to   compute   per year.
-As with last week, you'll employ modular design and start   building   your   program incrementally one function at a time. After   you have written each function you   will test it   carefully   to   make   sure   that   it works as specified. Note: Not following this advice is guaranteed to lead you down a path of pain! Understand that this is a two-part project and that next week’s project depends on this week’s project working properly! 
-New this week: Unlike last week, where we gave each function   many,   many   parameters, we're      going to collect all of the   parameters for the simulation   in a list and   pass the   list   as   an   argument   into our functions.   For this to work, we   have to   invest a little time   into   setting   up   a   connection between a variable and   its   index   in the   parameter list. The   benefit   is that our function   definitions   will   be simpler (one composite   parameter instead of many   individual   parameters)   and   more uniform.   It   is   important that we set   up the   list of parameters carefully and   use   the   same   location   in the list for the same   parameter throughout the   code.
-The following list shows all of the parameters   of the simulation   and   their   initial   default   values.
-Note: The darting probability parameter is set to 0.0. This will be updated via a parameter provided by the user on the command line. 
-Calving Interval 
-3.1 
-Darting Probability 
-0.0 
-Juvenile Age 
-12 
-Maximum Age 
-60 
-Calf Survival Probability 
-0.85 
-Adult Survival Probability 0.996 
-Senior Survival Probability 
-0.20 
-Carrying Capacity 
-7000 
-Number of Years 
-200 
-L2. Create a list of parameters In order to   pass all of the   parameters at   once, we're going to   use   a list.   One   method   of   setting      up the   list   is to just   make a   list of   numbers. This   has the   benefit that we can   look   at   the variable   names   in the   list to tell   us the   meaning of each   position   in the   list.
-Using the template below,   make a test function   in your elephant.py file that   creates   the   parameter list and then   prints   it to the   console.
-Note: The order of the parameters must match that given in this document. Changing it will break the testing scripts.def test():# assign each parameter from the list above to a variable using thefollowing names:calvingInt = 3.1dartingProb = 0.0juvenileAge = 12maxAge = 60calfSurvivalProb = 0.85adultSurvivalProb = 0.996seniorSurvivalProb = 0.20carryingCap = 7000numYears = 200# create the parameters variable and assign it all the valuesparameters = [calvingInt, dartingProb,. . . ]# print the parameter listif __name__ == "__main__":test()First, verify that the   parameter list does   in fact contain all   the   parameters   and   that   they   are   in   the   correct order.   For now, we will   leave darting   probability at 0.0,   but   later on   we   will   add   the   ability      to get that parameter value from the   command   line.
-Second,   notice that while working with the   parameters as a list   is an   ok   solution,   there   might   be   problems with this approach. Can you anticipate any   problems?   For example,   if we write a function that   needs to access a specific parameter, we will   have to remember that   parameter's      index   in the list. So, for example, the calving   interval   parameter will   be parameters[0] if you set   up the   parameter list with that value   in the first   position and parameters[5] will   be for the adult survival   probability. Then   realize that there are   nine   parameters   in this list and we   could   add more   in the future!
-Using this arrangement   means   it   is easy to   make   mistakes when you   have to remember
-whether a given value   is   in   position 4 or position 5.   It   also   makes   it   hard   to   modify   your   code   if   you   happen to change the order of the values   in the   parameter list or   even   add   new   ones.   If you   did   make changes,   it would   mean you would   have to go 代 写CS152 Lab Exercise 5: Representing Elephants as ListsR
-代做程序编程语言through all of your code   and   change   all      the   indexes wherever you were accessing a parameter value. That's a   lot of   changes   and   it creates a lot of opportunities to   make   mistakes.Our solution will   be to create a system of indexes that   relates   the   position   to   the   item   in   the   parameter list using a mnemonic-like   naming strategy.   This   provides   flexibility   for   changes      without changing our code everywhere an   index   is used.   To   do   this   we   will   declare   a   set   of   variables with a specific naming   style. and assign   the   appropriate   index   number which corresponds to where   in the   parameter list the value   is located.   For example,   by   assigning to variable IDXCalvingInt the value 0 (the   index of the calving interval   in   the   parameter   list)   we   can access that value in   our   code   as follows: 
-IDXCalvingInt =   0
-probabilityPregnant = 1 /   parameters   [IDXCalvingInt]
-In the elephant.py file, add variables for all the simulation   parameters   (after   module   import statements at the top of your file) and assign appropriate values for each   of the   parameters   in   the simulation (like   you did for IDXCalvingInt). When naming   index variables,   begin   each name with IDX to   indicate the value   is an   index, then use a   name that   indicates the   field.
-L3. Representing an elephant as a list 
-Because we will be representing individual elephants with   such   detail,   we   will   be   modeling   each elephant as a list with four features. We have   to   keep   track   of an   elephant's   sex   and   age.   For   females, we also have to keep track of whether an   adult female   is   pregnant,   and   whether   she   has   been   injected via contraceptive dart, and,   if so,   how   many   months are left   on   the contraception. The following table gives the attributes and their types.
-Field 
-Type 
-Sex 
-string 
-Age integer 
-Months pregnant integer 
-Months contraceptive remaining integer 
-Use the same IDX design as above. Create a separate set   of top-level variables   with   indexes   to   keep track of which entry   in the elephant list   is storing   information   about which field.   Write   the four assignment statements necessary to keep track   of   elephant   features.   Use   the   following   names: 
-IDXSex = 0 
-IDXAge = 1 
-IDXMonthsPregnant = 2 
-IDXMonthsContraceptiveRemaining = 3 
-L4. Write a function to create and return a new elephant 
-The function newElephant should create and return a   list with   all of the   necessary features   of   an   individual elephant. The newElephant function should have two   parameters: the   list   of simulation   parameters, and the age of the elephant to create.   It should   return   a   list   with   the   four   items above. 
-def newElephant   ( parameters, age   ):
-#Docstring for what this   function   does
-elephant =   [0,0,0,0]
-Add the values to the list   representing   a   new   elephant   using   the   algorithm below
-return elephant
-The newElephant function will need   to use the calving interval, juvenile age,   and maximum age parameters, so use the IDX names to access the   parameter list   in   your function.
-a.      Assign to a variable elephant a list with four zeros   in   it.
-b.       Then   use the   random   package to assign to elephant[IDXSex] either    'm   '   or    'f   '. Note: lookup random.choice() documentation or ask the   lab   TA.   This will   simplify   your   code and avoid another   if/elif statement.
-c.       Then assign to elephant[IDXAge] the value of the age   parameter   (not   a   random   number,   but the value passed into   the   function).
-d.       If the elephant   is female and if the elephant   is   of   breeding   age   (strictly   older than juvenile   age and less than or equal to the   maximum   age), test   if the   elephant   is   pregnant   (the probability the elephant   is   pregnant   is   1.0 / calvingInterval).   If the elephant   is   pregnant,   pick a   random   number between   1 and 22 (inclusive)   and   assign that   to   the
-IDXMonthsPregnant position   in the elephant   list.
-e.       No elephant starts out   on the   contraceptive,   so   the
-IDXMonthsContraceptiveRemaining field of the elephant list will always be zero
-when we create a   new elephant   because we   initialized that   index in the   elephant   list   with   0.
-f.          Return the   elephant.
-Finally, test the newElephant function by adding the following code   to your   test   function.Reduce the carrying capacity to around 5 elephants (so you can see the output on one line) and then print out the elephant population list. Just remember to change it back to 7000 later on. This code assumes you have a   variable   named parameters that   contains   the   parameters for the simulation and you have named   the   index variables   as   in   the   code.
-# Code   inside test function:
-population =   []
-for i in   range   (parameters   [IDXCarryingCapacity):
-population.append   ( newElephant   ( parameters, random.rand   int   (1,   parameters   [IDXMaximumAge]) ))
-print   (pop)
-Make sure that the data looks correct. There should be a spread of values. A mix of males and females. No males should be pregnant! (Don’t laugh, it has happened) Some females, within the correct age range, should be pregnant, but no female is on contraceptive. Run the test numerous times until you have convinced yourself that the newElephant function is working properly. If it doesn’t work correctly then debug until it does. This is a large 
-project and if you start off incorrectly it will be very difficult to find the bugs later on. 
-L5. Write an initPopulation function 
-Write a function initPopulation (parameters) using the newElephant(parameters, age) function to create elephants. The init   Population function should take   in   the   parameter   list   and   return a   list of new elephants, where each   new elephant   is   a   list   itself.   The   number   of elephants to create is the carrying   capacity   parameter.
-In the   last   project we   represented each   individual animal with a single letter   and   a   population   as   a   list such as   [‘f’   , ‘m’   , ‘m’   , ‘f’   , ‘f’   , ‘m’].   In this   project we will   be   representing each   individual   as a         list of four items: sex, age,   months pregnant, and   months   contraceptive   remaining.   This   means      that our population of elephants will be   represented as   a   list   of elephant   lists   such   as
-[   [‘f’   ,22,12,0],   [‘m’   ,12,0,0],...]
-The initPopulation function should   initialize a population   list to the   empty   list,   loop for   the   number of elephants to   create and append each   new elephant   (call newElephant with   a randomly chosen age   between   1   and the   maximum age   both   inclusive) to the   population   list   on   each   iteration.   It should then   return the   population list. Add code to your test function   that calls initPopulation and then   prints   out   the   population      list. Note: You may want to temporarily reduce the carrying capacity to 5 so that you can print out the population on one line and inspect it. Be sure to change it back to 7000. 
-L6. Write a function to increment the age of the population 
-Write a function incrementAge (population). This function   should take   in a   population   list   and   return a   population   list.   Inside   the function,   it should   increment each elephant's age   by   1         year accessing the age value by   using the IDXAge index.Add code to your test function that calls incrementAge. You will   be   passing   in   the   population list created by initPopulation and then assigning the   return value   from   the incrementAge function   back to the same variable.   Print out the new   population   list and   double-check   that   each   age was   incremented   by one and that   no other changes are   made to   each   elephant   list.
-Congratulations! You have completed the lab portion of Project 5 and are ready to begin the project. 
+CS152
+Project 3: Calculating Thermoclines 
+The first task of this   project   is to   build a library of functions that   can   be   reused   by   other programs.   In   particular, we are going to write a set of functions that can   calculate statistics for   us.
+The second task will   involve computing the depth of the thermocline on   Great   Pond   and   plotting   it for the   month of July. The thermocline is the depth at which there   is the   largest   difference   in water density, with a layer of denser water below and   a   layer   of   less   dense water   above.
+Outline of Lab/Project 3 Program Development 
+Lab: Developing and working with libraries 
+A.    Write a module that contains   common   statistics   named stats.py 
+B.   Use the library functions   in analyze.py using command   line   arguments
+Project:    Calculating thermoclines 
+A. Write a function that converts water temperatures into water   densities
+B. Write a function that computes the depth of the   maximum change   in   density
+C. Write a top-level function that reads in   the   data   file   and   guides   the   computation.
+Setup your workspace for the project 
+1.   Create a   Project 3 folder in a   conveniently   accessible   location
+2.   Download GoldieJuly2019.csv, testDensity.py and testThermocline.py 
+3. Copy stats.py and analyze.py from lab folder   into   the Project03 folder
+Project Tasks (T1-T3) 
+T1. Write your library of useful statistical functions 
+In the stats.py file you started in the   lab, add the   following   four   (4)   functions.   Each   function should   have a single   parameter, which should be a   list of   numbers.   The   functions   should   loop   over the   numbers   in the list, compute the given statistic,   and return it.
+1.      mean(data) - computes the   mean of the list   of   data.
+2.      min(data) - computes the min   of the   list   of data.
+3.      max(data) - computes the   max of the   list   of data.
+4.    variance(data) - computes   the   variance   of the   list   of data.
+As you   probably   recall, to compute the mean you sum   all the   values   in   the   list   and   divide   by   the   number of items.   Notice that stats.py already has a function   to   do   the   summing   up.   Instead   of reinventing the wheel why not have the mean function   call   the sum function   you   already wrote?   This   is an example of code reuse.
+The   number of items   in the   list   is the same as the   length of the   list.   In   this   case,   do   use   the   Python   built-in function len() to determine   how   many   items are   in the list. This   is   another example of code   reuse. 
+Write functions to calculate the min and max of the   items   in the   list. Do NOT use built-in functions to do this. 
+Finally, to calculate the variance you can use the   following   formula:
+The algorithm for this formula says that you will sum up   all   of the squared   differences   between         each   list   item and the   mean of the   items and divide   by the total   number of   items   minus   1.   There   is a   mathematical   reason why you divide   by   N-1 and   not   N.
+Run stats.py and   make sure that   it   is working correctly.
+Required Output 1: Include a description   in your report   how you determined   your   stats functions were working correctly. (e.g., take a screenshot of the output   of   calling   functions   with   a   simple list(s) of values and display   the   result) 
+T2. Write a program to compute statistics of a column of data 
+Using your analyze.py file from the lab, update   it so   that   it   computes   the sum, mean, variance, max, and min statistics.   Recall that we are   using command   line   arguments   to   obtain   the file name and column number from the user.   Print the statistics to   the   terminal.
+Calling analyze.py with the hurricanes.csv file and column 1 as command   line   arguments   should produce the following statistics:
+sum : 103.00
+mean: 7.36
+var : 12.55
+min : 2.00
+max : 15.00
+Required Output 2: Demonstrate   that your program works with a column   from GoldieJuly2019.csv data file   provided with this project. One way to do   this   is   to   insert   a function   in the cell at the bottom of a   column to   calculate   a   statistic.   For   example,   placing =Average(B2:B2977)   in the cell below any column will calculate   the   average   of all   the   cells above   it.   For column 2 this would give a value of   10.795.   Compare this value with   your   stats   mean function.   Include a screenshot of the printed output of your   program   and   a screenshot   of   the data files calculation as evidence that your library function   works. 
+T3. Calculate the thermocline depth in Great Pond for July 2019 
+The   next task will be to write a program that   computes   the   depth   of the thermocline   on   Great   Pond for each day in July 2019. The thermocline   is   the   depth   at which   the   water   density changes   most quickly, creating a layer of colder, denser water   below   a   layer   of warmer   water   that tends   not to   mix. 
+To do this you will write three functions:
+1. a function that converts water temperatures into water densities
+2. a function that computes the depth of the maximum   change   in   density
+3. a top-level function that reads in the   data file   and   guides   the   computation.
+T3a. Setup 
+Create a   new file, thermocline.py.   Put your name, date, and   class at   the   top,   along   with   a   comment indicating what the program will do (compute   the   thermocline).
+T3b. Convert temperatures to densities 
+Write a function called density that takes   in one   parameter, temps,   that   is   a   list   of temperatures. The function should first create a new   empty   list to   hold   density   values,   typically   designated with the Greek letter rho. Then,   it   should   loop   over the temps   list   and   for   each temperature value compute the density using the following   equation:
+rho = 1000 * (1 - (t + 288.9414) * (t - 3.9863)**2 / (508929.2*(t + 68.12963)))
+It should then append each computed density to   a   list that   will   be   returned   to   the   caller.
+Test your function using the   included testDensity.py file.   It should   print out the following   if your   density function is working   correctly.
+24.47 -> 997.21 
+23.95 -> 997.34 
+24.41 -> 997.22 
+23.81 -> 997.37 
+19.92 -> 998.25 
+16.88 -> 998.82 
+14.06 -> 999.26 
+11.56 -> 999.57 
+9.82 -> 999.74 
+9.13 -> 999.80 
+8.82 -> 999.82
+T3c. Compute the derivative of the densities 
+Note: If you   have   not taken   Univariate Calculus yet a derivative   is just a slope at   a   point.   Slope   is defined as the rise of the function over the   run.   So   in   this   program we   are   going   to   calculate         the change   in density as the depth increases   and   locate the   depth   where   the   maximum   change   occurs.
+Add a function named thermocline_depth to thermocline.py that computes the   derivative   of   density with   respect to depth, or how fast the density   is   changing   as you   get   deeper.   The function will take   in two lists: one is the   set   of temperatures, the   other   is   the   set   of corresponding   depths. The function will return one value: the depth of the maximum change in density.   The      algorithm below gives the function. 
+def thermocline_depth( temps, depths ): 
+# assign to rhos the result of calling the density function with temps as the argument 
+# create an empty list named drho_dz 
+# loop for one less than the length of rhos 
+# append to drho_dz the quantity rhos[i+1] minus rhos[i] divided by the quantity depths[i+1] minus depths[i]
+# sanity check (optional): print out temps[i], rhos[i], and drho_dz[i] for visual inspection 
+# assign to max_drho_dz the value -1.0 
+# assign the maxindex the value -1 
+# loop for the length of drho_dz (loop variable i) 
+# if drho_dz[i] is greater than max_drho_dz 
+# assign to max_drho_dz the value drho_dz[i] 
+# assign to maxindex the value i 
+# assign to thermoDepth the average of depths[maxindex] and depths[maxindex+1]
+return thermoDepth
+Test your thermocline_depth function using the included testThermocline.py file.   It should output a depth of 6.0m (note that the   maximum   change   of   0.44   at   that   depth   --   you   do   not   need   to   report this,   but   if you   run   into   problems,   knowing what the   maximum change   is supposed to         be can help you   debug   your   code). 
+T3d. Compute the thermocline for each day in July The final step   is to 代 写CS152 Project 3: Calculating ThermoclinesPython
+代做程序编程语言write the main function that reads   in   data   from   the   included GoldieJuly2019 file, extracts all of the temperature fields in order,   computes the thermocline_depth and   prints      the day and thermocline_depth value.
+The file   includes all of the data fields for the month of July   and   a   single   header   line.
+Note: Pay   particular attention to the   indices. The field   indices for the depths (in   meters)   [1,   3,   5,   7, 9,   11,   13,   15] are   located at field   numbers      [10,   11,   16,   17,   15,   14,   13,   12]   in the
+GoldieJuly2019 file. You   may want to double-check the field numbers before   starting   by   looking   at the   header   line.
+The algorithm given   below   is not strictly line   by line.   Each   comment will   correspond   to   one   or   more lines   of   Python.
+def main():
+# these are the fields corresponding to the temperatures in order by depth
+# note they use 0-indexing
+fields = [10, 11, 16, 17, 15, 14, 13, 12]
+# these are the depth values for each temperature measurement
+depths = [ 1, 3, 5, 7, 9, 11, 13, 15 ]
+# open the data file and read past the header line
+# assign to day the value 0
+# for each line in the file
+# split the line on commas and assign it to words
+# if the time is about noon (12:03:00 PM)
+# add one to the day variable
+# assign to temps the empty list
+# loop over the number of items in depths (loop variable i)
+# append to temps the result of casting words[ fields[i] ] to a float
+# assign to thermo_depth the result of calling thermocline_depth with temps and depths as arguments
+# print (or save to a file) the day of the month and thermo_depth separated by a comma
+if __name__ == "__main__":
+main()
+Required Output 3: Run your program and create a plot of the results with day on the x-axis and thermocline depth on the y-axis. Include this plot in your report
+Reflection Questions: Required Element    4: Follow-up Questions: 
+1.      Explain what   is   meant   by the term “code   reuse” and give an   example?
+2.       Explain what   is   meant   by the term “modular design” and give   an   example?
+3.      Perform. a Google search for a woman statistician and   give   a   one   sentence   description   of   a contribution they   made.
+Extensions Each assignment will   have a set of suggested extensions. The   required tasks   constitute   about   85% of the assignment, and if you do only the   required   tasks   and   do   them well   you will   earn   a   B+. To earn a   higher grade, you   need to undertake   one   or   more   extensions.   The   difficulty   and      quality of the extension or extensions will determine your final grade for the assignment.   One complex extension, done well, or 2-3 smaller extensions are typical.
+● Write functions in your stats.py file to   compute   more types   of statistics.
+● Use your code to   compute statistics   on   a   data   set   of your   own   choosing.
+● Compare different times   or time   periods   in the   Goldie   data.
+●       Add more command-line control options,   such   as   specifying   what   time   of day   to   compute   the thermocline.
+●       Explore   how the thermocline changes   and why?   What   are   the   min   and   max   thermocline   values for July? What if you graph wind direction and thermocline together,   is there   a relationship?
+● Automate the   process of making a graph   from   data(   Hint:   Matplotlib)
+Submit your code 
+Turn   in your code (all files ending with   .py)   by zipping the file   and   uploading   it   to   Google   Classroom.
+When submitting your code, double check the following.
+1.       Is your name   at   the   top   of   each   Python   file?
+2.       Does every function   have a docstring (‘’’ ‘’’)   specifying   what   it   does?
+3.       Is your Lab   04   folder   in   your   Project   04   folder?
+4.       Have you checked to   make sure you   have   included all   required   elements   and   outputs   in   your project   report?
+5.       If you   have done an   Extension,   have you   included this   information   in your   report   under   the   Extension   heading?   Even   if you   have   not done any extensions,   include a section   in   your report where you   state   this.
+6.       Have you acknowledged any help you   may   have   received from   classmates,   your
+instructor, the TAs, or outside sources (internet,   books, videos,   etc.)?   If you   received   no   help at all,   have you   indicated that under the Sources   heading   of the   report?
+Write your project report 
+Reports are not included in the compressed file! Please don’t   make the graders   hunt for your report.
+You can write your report   in any word   processor you like   and   submit   a PDF document   in   the Google Classroom assignment folder. Or   just   use a   Google   Document   format.
+Review the Writeup Guidelines document.
+Your intended audience for your report   is your peers who   are   not   taking   CS   classes.
+From week to week, you can assume your audience   has read   your   prior   reports.   Your   goal should   be to explain to   peers what you accomplished   in the   project and   to   give them a sense of how you did   it. The following   is   a   list   and   description   of the mandatory sections you   must   include   in your report.   Do   not   include the descriptions   in your report,   but   use them as a guide   in writing   your   report.
+● Abstract 
+A summary of the   project,   in your own words. This should be   no   more   than   a few
+sentences. Give the   reader context and   identify the   key purpose   of the assignment. An abstract should define the   project's   key lecture concepts   in   your own words for a general,   non-CS audience.   It should also describe the   program's   context and output,   highlighting a couple of important   algorithmic   and/or scientific   details. Writing an effective abstract   is an important   skill.   Consider the   following questions while writing it.
+○       Does   it describe the   CS   concepts   of the   project   (e.g. writing   well-organized and efficient code)?
+○       Does it describe the specific   project   application   (e.g.   generating   data)?
+○       Does   it describe your solution   and   how   it was   developed   (e.g. what   code   did you write)?
+○       Does   it describe the   results   or outputs   (e.g.   did   your   code   work   as   expected and what did the   results tell you)?
+○ Is   it concise?
+○       Are all of the terms well-defined?
+○       Does it   read   logically   and   in   the   proper   order?
+● Methods 
+The   method section should describe   in clear sentences (without   pasting   any code) at least one example of your own   computational thinking   that   helped   you   complete your project. This could   involve   illustrating   how a key   lecture   concept   was applied to creating an image,   how you   solved   a   challenging   problem,   or explaining an algorithmic feature that   is essential to your program   as well   as why   it   is so essential. The explanation should be   suitable for   a   general   audience   who      does   not   know   Python.
+● Results 
+Present your results   in a clear manner   using   human-friendly   images or   graphs labeled with captions and   interpreted for a general audience such   as your   peers   not   in the course.   Explain, for a general,   non-CS audience, what your output means and whether it   makes   sense.
+● Reflection and Follow-up questions 
+Draw connections   between   lecture concepts   utilized   in this   project and real-world   problems that   interest you.   How else could these concepts apply to our everyday lives? What are some specific things   you   had   to   learn   or   discover   in   order to complete the   project?   Look for a set of short answer questions   in   this section of the report   template.
+● Extensions (Required   even   if you did   not   do   any)A description of any extensions you undertook,   including text output   or   images   demonstrating those extensions.   If you added any modules, functions, or   other   design components,   note their structure and the algorithms you   used.
+● References/Acknowledgements (Required even   if there   are   none)
+Identify your collaborators,   including TAs and   professors.   Include   in that   list   anyone whose code you   may have seen, such as   those   of friends who   have   taken the course   in a   previous semester. Cite any   other sources,   imported   libraries, or tutorials you used to complete   the   project.
 
          
 加QQ：99515681  WX：codinghelp  Email: 99515681@qq.com
